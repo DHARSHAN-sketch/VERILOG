@@ -1,0 +1,39 @@
+`include "spi_master.sv"
+`include "spi_slave.sv"
+
+module spi_top (
+    input  logic       clk,
+    input  logic       rst,
+    input  logic       start,
+    input  logic [7:0] m_data_in,
+    input  logic [7:0] s_data_in,
+    output logic [7:0] m_data_out,
+    output logic [7:0] s_data_out,
+    output logic       done
+);
+
+    logic sclk_w, cs_w, mosi_w, miso_w;
+
+    spi_master_fsm #(.CLK_DIV(2)) u_master (
+        .clk      (clk),
+        .rst      (rst),
+        .start    (start),
+        .data_in  (m_data_in),
+        .data_out (m_data_out),
+        .mosi     (mosi_w),
+        .miso     (miso_w),
+        .sclk     (sclk_w),
+        .cs       (cs_w),
+        .done     (done)
+    );
+
+    spi_slave_fsm u_slave (
+        .sclk     (sclk_w),
+        .cs       (cs_w),
+        .mosi     (mosi_w),
+        .miso     (miso_w),
+        .data_in  (s_data_in),
+        .data_out (s_data_out)
+    );
+
+endmodule
